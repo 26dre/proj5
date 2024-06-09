@@ -1,8 +1,6 @@
 #ifndef PASSWORD_H
 #define PASSWORD_H
 
-#include <stdlib.h>
-#include <utility.h>
 // #include "keypad.c"
 
 #define PASSWORD_MAX_LENGTH 10
@@ -22,20 +20,11 @@ enum PSWD_LOCK_ENUM {
     LOCKED, UNLOCKED
 };
 
-enum PSWD_LOCK_ENUM PSWD_LOCK = UNLOCKED; 
-
-
-char CURR_KEY = '\0';
-char TIMES_PASSWORD_FAILED = 0; 
-
-char curr_password[PASSWORD_MAX_LENGTH + 1] = "\0"; 
-char curr_one_time[PASSWORD_MAX_LENGTH + 1] = "\0";
 
 enum LOGGED_IN_STATE {
     LOGGED_OUT, LOGGED_IN
 }; 
 
-enum LOGGED_IN_STATE LOG_STATE = LOGGED_OUT;
 
 
 
@@ -61,7 +50,7 @@ void main_sm();
 char handle_override_login();
 char handle_regular_login();  
 void initial_setup(); 
-
+void full_sm(); 
 
 
 #endif

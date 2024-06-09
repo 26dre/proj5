@@ -1,12 +1,19 @@
 
-#ifndef PASSWORD_C
-#define PASSWORD_C
-#include "password.h"
+#include <stdlib.h>
+#include <utility.h>
+
 #include "keypad.h"
 #include <string.h>
 #include <stdio.h>
 #include "lcd.h"
+#include "password.h"
 
+enum PSWD_LOCK_ENUM PSWD_LOCK = UNLOCKED; 
+char CURR_KEY = '\0';
+char TIMES_PASSWORD_FAILED = 0; 
+char curr_password[PASSWORD_MAX_LENGTH + 1] = "\0"; 
+char curr_one_time[PASSWORD_MAX_LENGTH + 1] = "\0";
+enum LOGGED_IN_STATE LOG_STATE = LOGGED_OUT;
 const char local_chars[] = {'1', '2', '3', 'A','4','5','6','B','7','8','9', 'C', '*', '0', 'D' };
 void toggle_log_state() {
     if (LOGGED_OUT == LOG_STATE) {
@@ -69,17 +76,19 @@ void set_password(char* password_to_set) {
     lcd_puts2("Set password: "); 
     lcd_pos(1,0);
     
-    black_out_password_length(password_to_set, PASSWORD_MAX_LENGTH + 1);
-    for (int i = 0; i < PASSWORD_MAX_LENGTH; i++ ) {
-        read_from_keypad_wait(); 
-        char tmp = read_curr_key(); 
-        if (ENTER_KEY == tmp) {
-            break;
-        } else {
-            password_to_set[i] = tmp; 
-            lcd_pos(1,0); 
-            lcd_puts2(password_to_set);
+    while (strlen(password_to_set) == 0 ) {
+        black_out_password_length(password_to_set, PASSWORD_MAX_LENGTH + 1);
+        for (int i = 0; i < PASSWORD_MAX_LENGTH; i++ ) {
+            read_from_keypad_wait(); 
+            char tmp = read_curr_key(); 
+            if (ENTER_KEY == tmp) {
+                break;
+            } else {
+                password_to_set[i] = tmp; 
+                lcd_pos(1,0); 
+                lcd_puts2(password_to_set);
 
+            }
         }
     }
 
@@ -305,4 +314,3 @@ char handle_regular_login() {
 }
 
 
-#endif
