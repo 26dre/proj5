@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "lcd.h"
 
-const char local_chars[] = {'\0','1', '2', '3', 'A','4','5','6','B','7','8','9', 'C', '*', '0', '#', 'D' };
+const char local_chars[] = {'1', '2', '3', 'A','4','5','6','B','7','8','9', 'C', '*', '0', 'D' };
 void toggle_log_state() {
     if (LOGGED_OUT == LOG_STATE) {
         LOG_STATE = LOGGED_IN; 
@@ -45,13 +45,13 @@ void generate_one_time_password (char length, char* pswd) {
     black_out_password(pswd);
     for (int i = 0; i < length; i++) {
         int tmp_idx = rand() % KEYBOARD_MAX_STATES;
-        tmp_idx += 1; //this accounts for the fact that /0 is part of the char array
         pswd[i] = local_chars[tmp_idx];
     }
 
     char buf[17];
     sprintf(buf, "New pswd: %s", pswd);
     lcd_puts2(buf);
+    wait_avr(2000);
     // return ret_str; 
 }
 
@@ -82,6 +82,9 @@ void set_password(char* password_to_set) {
 
         }
     }
+
+    wait_avr(1000);
+
 }
 
 void black_out_password(char* password_to_blackout) {
@@ -214,6 +217,11 @@ void main_sm() {
             handle_logged_out(); 
         }
     }
+}
+
+void full_sm() {
+    initial_setup(); 
+    main_sm(); 
 }
 
 // void print_password(char* pswd, int r, int c) {

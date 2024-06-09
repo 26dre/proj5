@@ -6,7 +6,7 @@
 // #include "keypad.c"
 
 #define PASSWORD_MAX_LENGTH 10
-#define KEYBOARD_MAX_STATES 16
+#define KEYBOARD_MAX_STATES 15
 #define GENERIC_ONE_TIME_LENGTH 4
 #define LOG_OUT_KEY '*'
 #define LOG_IN_KEY '*'
@@ -60,7 +60,7 @@ void get_user_login_attempt(char* buf);
 void main_sm(); 
 char handle_override_login();
 char handle_regular_login();  
-
+void initial_setup(); 
 
 
 
