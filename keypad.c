@@ -31,11 +31,11 @@ int is_pressed(int r, int c) {
 	r = 3-r;
 	c = 3-c;
 	// Set the row (r) to "0"
-	set_port(&DDRA, c);
-	clear_port(&PORTA,c);
+	set_port(&DDRC, c);
+	clear_port(&PORTC,c);
 	// Set the column (c) to "high"
-	clear_port(&DDRA, r+4);
-	set_port(&PORTA,r+4);
+	clear_port(&DDRC, r+4);
+	set_port(&PORTC,r+4);
 	wait_avr(10);
 	//DDRA = 0;
 	if (/*GPIO @ c = 0*/  !get_pin(&PINA,r+4)) {    // Check if the corresponding pin is high
