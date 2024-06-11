@@ -1,5 +1,6 @@
-// #include "avr.h"
+#include "avr.h"
 #include "lcd.h"
+// #include
 #include "utility.h"
 #include <avr/io.h>
 
