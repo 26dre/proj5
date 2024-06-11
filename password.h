@@ -12,7 +12,6 @@
 #define ENTER_KEY '#'
 #define GENERATE_ONE_TIME '1'
 #define FORCE_UNLOCK_START '#'
-#define FORCE_UNLOCK_PSWD "ABCD1234\0"
 #define MAX_CONSECUTIVE_FAILED 3
 
 
@@ -26,7 +25,7 @@ enum LOGGED_IN_STATE {
 }; 
 
 
-
+void handle_locked_out(); 
 
 void toggle_log_state(); 
 void set_curr_key(char c); 

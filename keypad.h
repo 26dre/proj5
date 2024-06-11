@@ -7,6 +7,7 @@
 #ifndef KEYPAD
 #define KEYPAD
 #include "utility.h"
+#include "avr.h"
 // * for reset
 // D for confirm
 

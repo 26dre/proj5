@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "lcd.h"
 #include "password.h"
+#include <time.h> 
 
 enum PSWD_LOCK_ENUM PSWD_LOCK = UNLOCKED; 
 char CURR_KEY = '\0';
@@ -15,6 +16,35 @@ char curr_password[PASSWORD_MAX_LENGTH + 1] = "\0";
 char curr_one_time[PASSWORD_MAX_LENGTH + 1] = "\0";
 enum LOGGED_IN_STATE LOG_STATE = LOGGED_OUT;
 const char local_chars[] = {'1', '2', '3', 'A','4','5','6','B','7','8','9', 'C', '*', '0', 'D' };
+
+char FORCE_UNLOCK_PSWD[] = "ABCD"; 
+char handle_locked_out()  {
+    lcd_clr(); 
+    lcd_pos(0,0);
+    lcd_puts2("Locked out");
+    lcd_pos(1,0);
+    for (int i = 60; i > 0; i++) {
+        read_from_keypad_wait(); 
+        char c = read_curr_key(); 
+        
+        if (c == FORCE_UNLOCK_START && handle_override_login()) {
+            return 1; 
+        }
+        // note this will keep the timer going even after an attempt for a manager log in
+        // that is a user will still be locked out for the full time regardless
+
+        lcd_pos(1,0);
+        lcd_puts2("Left "); 
+        char time_left[10]; 
+        sprintf(time_left, "Left: %02d", i);
+        wait_avr(995);
+    }
+
+
+    reset_pswd_fail();
+    toggle_locked_out(); 
+    return 0; 
+}
 void toggle_log_state() {
     if (LOGGED_OUT == LOG_STATE) {
         LOG_STATE = LOGGED_IN; 
@@ -75,6 +105,7 @@ void set_password(char* password_to_set) {
     lcd_pos(0,0);
     lcd_puts2("Set password: "); 
     lcd_pos(1,0);
+    
     
     while (strlen(password_to_set) == 0 ) {
         black_out_password_length(password_to_set, PASSWORD_MAX_LENGTH + 1);
@@ -138,6 +169,7 @@ void handle_logged_in() {
     char buf[17];
     get_state_as_char(buf);
     lcd_puts2(buf);
+    
     while (LOG_OUT_KEY != last_in) {
         read_from_keypad_wait(); 
         last_in = read_curr_key(); 
@@ -168,7 +200,13 @@ void toggle_locked_out () {
 void handle_logged_out () {
     
     char login_succesful = 0; 
-    while (!login_succesful && UNLOCKED == PSWD_LOCK) {
+    lcd_clr(); 
+    while (!login_succesful) {
+        // lcd_puts2("Press ")
+        char buf1[15]; 
+        sprintf(buf, "%c = log in");
+        char buf2[15];
+        sprintf(buf, "%c = manager");
         
         char last_in = '\0';
         read_from_keypad_wait(); 
@@ -192,24 +230,10 @@ void handle_logged_out () {
             default: 
                 break; 
         }
-    }
 
-    while (!login_succesful && LOCKED == PSWD_LOCK) {
-        
-        char last_in = '\0'; 
-        read_from_keypad_wait(); 
-        last_in = read_curr_key(); 
-
-        switch (last_in) {
-            case FORCE_UNLOCK_START : 
-            {
-               login_succesful = handle_override_login();  
-            }
-            default:
-                break;
-
+        if (LOCKED == PSWD_LOCK) {
+            login_successful = handle_locked_out(); 
         }
-    
     }
 
     toggle_log_state(); 
@@ -244,6 +268,7 @@ void initial_setup() {
 
     TIMES_PASSWORD_FAILED = 0; 
     LOG_STATE = LOGGED_IN; 
+    srand(time(NULL));
 }
 
 char handle_override_login() {
@@ -261,9 +286,9 @@ char handle_override_login() {
         login_succesful = 1; 
         reset_pswd_fail();
         toggle_locked_out();  
-        lcd_puts2("Login succesful");
+        lcd_puts2("Success");
     } else {
-        lcd_puts2("Login unsuccesful");
+        lcd_puts2("Fail");
     }
 
     return login_succesful; 
@@ -304,10 +329,11 @@ char handle_regular_login() {
         lcd_puts2("Login failed");
         lcd_pos(1,0);
         char buf[20]; 
+        inc_pswd_fail();  
         sprintf(buf, "Failed Cnt: %d", TIMES_PASSWORD_FAILED ); 
         lcd_puts2(buf);
 
-        inc_pswd_fail();
+     
     }
 
     return login_succesful; 
